@@ -1,6 +1,4 @@
 " Plugin for modifying guifont size.
-" Maintainer:   Michael Henry (vim at drmikehenry.com)
-" License:      This file is placed in the public domain.
 
 if exists("loaded_fontsize")
     finish
@@ -12,51 +10,55 @@ let s:save_cpoptions = &cpoptions
 set cpoptions&vim
 
 if ! hasmapto("<Plug>FontsizeBegin")
-    nmap <silent> <Leader>==  <Plug>FontsizeBegin
+    nmap <silent> <Leader><Leader>=  <Plug>FontsizeBegin
 endif
 
 if ! hasmapto("<Plug>FontsizeInc", "n")
-    nmap <silent> <Leader>++  <Plug>FontsizeInc
+    nmap <silent> <Leader><Leader>+  <Plug>FontsizeInc
 endif
 
 if ! hasmapto("<Plug>FontsizeDec", "n")
-    nmap <silent> <Leader>--  <Plug>FontsizeDec
+    nmap <silent> <Leader><Leader>-  <Plug>FontsizeDec
 endif
 
 if ! hasmapto("<Plug>FontsizeDefault", "n")
-    nmap <silent> <Leader>00  <Plug>FontsizeDefault
+    nmap <silent> <Leader><Leader>0  <Plug>FontsizeDefault
 endif
 
-" Mappings using <SID>m_ are inspired by the bufmru.vim plugin.
+" "font size" mode mappings are inspired by the bufmru.vim plugin.
 " The concept is to enter a "mode" via an initial mapping.  Once
 " in this mode, some mode-specific keystrokes now behave as if they
 " were mapped.  After 'timeoutlen' milliseconds have elapsed, the
 " new "mode" times out and the new "mappings" are effectively disabled.
 "
 " This emulation of a "mode" is accomplished via a clever techinque
-" wherein each operation terminates with a partial mapping to <SID>m_.
+" wherein each operation terminates with a partial mapping to <SID>(fontsize).
 " Each new keystroke completes a mapping that itself terminates with
-" <SID>m_, keeping an extensible chain of mappings going as long as
+" <SID>(fontsize), keeping an extensible chain of mappings going as long as
 " they arrive before 'timeoutlen' milliseconds elapses between keystrokes.
+" The string "(fontsize)" is chosen to take the entire ten characters of
+" space available for Vim's 'showcmd' option.  It provides better visual
+" appearance than <SID>m_, which comes out looking something like 
+" 80>yR91_m_.
 
 " Externally mappable mappings to internal mappings.
-nmap <silent> <Plug>FontsizeBegin       <SID>begin<SID>m_
-nmap <silent> <Plug>FontsizeInc         <SID>inc<SID>m_
-nmap <silent> <Plug>FontsizeDec         <SID>dec<SID>m_
-nmap <silent> <Plug>FontsizeDefault     <SID>default<SID>m_
-nmap <silent> <Plug>FontsizeSetDefault  <SID>setDefault<SID>m_
+nmap <silent> <Plug>FontsizeBegin       <SID>begin<SID>(fontsize)
+nmap <silent> <Plug>FontsizeInc         <SID>inc<SID>(fontsize)
+nmap <silent> <Plug>FontsizeDec         <SID>dec<SID>(fontsize)
+nmap <silent> <Plug>FontsizeDefault     <SID>default<SID>(fontsize)
+nmap <silent> <Plug>FontsizeSetDefault  <SID>setDefault<SID>(fontsize)
 nmap <silent> <Plug>FontsizeQuit        <SID>quit
 
-" "Font size" mode mappings.  m_<KEY> maps <KEY> in "font size" mode.
-nmap <silent> <SID>m_+        <SID>inc<SID>m_
-nmap <silent> <SID>m_=        <SID>inc<SID>m_
-nmap <silent> <SID>m_-        <SID>dec<SID>m_
-nmap <silent> <SID>m_0        <SID>default<SID>m_
-nmap <silent> <SID>m_!        <SID>setDefault<SID>m_
-nmap <silent> <SID>m_q        <SID>quit
-nmap <silent> <SID>m_<SPACE>  <SID>quit
-nmap <silent> <SID>m_<CR>     <SID>quit
-nmap <silent> <SID>m_         <SID>quit
+" "Font size" mode mappings.  (fontsize)<KEY> maps <KEY> in "font size" mode.
+nmap <silent> <SID>(fontsize)+        <SID>inc<SID>(fontsize)
+nmap <silent> <SID>(fontsize)=        <SID>inc<SID>(fontsize)
+nmap <silent> <SID>(fontsize)-        <SID>dec<SID>(fontsize)
+nmap <silent> <SID>(fontsize)0        <SID>default<SID>(fontsize)
+nmap <silent> <SID>(fontsize)!        <SID>setDefault<SID>(fontsize)
+nmap <silent> <SID>(fontsize)q        <SID>quit
+nmap <silent> <SID>(fontsize)<SPACE>  <SID>quit
+nmap <silent> <SID>(fontsize)<CR>     <SID>quit
+nmap <silent> <SID>(fontsize)         <SID>quit
 
 " Action mappings.
 nnoremap <silent> <SID>begin       :call fontsize#begin()<CR>

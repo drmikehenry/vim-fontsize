@@ -44,8 +44,8 @@ the downloaded archive into a bundle directory, e.g.: >
 Each of the following mappings is invoked from normal mode:
 
   <Leader><Leader>=    Begin "font size" mode
-  <Leader><Leader>+    Increment font size
-  <Leader><Leader>-    Decrement font size
+  <Leader><Leader>+    Increment font size (by [count])
+  <Leader><Leader>-    Decrement font size (by [count])
   <Leader><Leader>0    Revert to default font size
 
 Note that by default, <Leader> is the backslash character, so for example

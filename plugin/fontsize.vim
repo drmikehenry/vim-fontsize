@@ -9,19 +9,19 @@ let loaded_fontsize = 1
 let s:save_cpoptions = &cpoptions
 set cpoptions&vim
 
-if ! hasmapto("<Plug>FontsizeBegin")
+if !hasmapto("<Plug>FontsizeBegin")
     nmap <silent> <Leader><Leader>=  <Plug>FontsizeBegin
 endif
 
-if ! hasmapto("<Plug>FontsizeInc", "n")
+if !hasmapto("<Plug>FontsizeInc", "n")
     nmap <silent> <Leader><Leader>+  <Plug>FontsizeInc
 endif
 
-if ! hasmapto("<Plug>FontsizeDec", "n")
+if !hasmapto("<Plug>FontsizeDec", "n")
     nmap <silent> <Leader><Leader>-  <Plug>FontsizeDec
 endif
 
-if ! hasmapto("<Plug>FontsizeDefault", "n")
+if !hasmapto("<Plug>FontsizeDefault", "n")
     nmap <silent> <Leader><Leader>0  <Plug>FontsizeDefault
 endif
 

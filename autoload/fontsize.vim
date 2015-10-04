@@ -116,7 +116,7 @@ function! fontsize#quit()
 endfunction
 
 function! fontsize#ensureDefault()
-    if ! exists("g:fontsize#defaultSize")
+    if !exists("g:fontsize#defaultSize")
         let g:fontsize#defaultSize = 0
     endif
     if g:fontsize#defaultSize == 0

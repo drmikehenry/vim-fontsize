@@ -1,5 +1,5 @@
 *fontsize.txt*   Plugin for modifying guifont size
-*fontsize*       Version 0.5.0
+*fontsize*       Version 0.5.1
 
 ==============================================================================
 1.  Introduction                                    |fontsize-intro|
@@ -166,6 +166,10 @@ the font names.  For example, on Chinese Windows XP, the fonts are encoded in
 ===============================================================================
 5.  ChangeLog                                       *fontsize-changelog*
 
+Version 0.5.1    Date    2025-10-26                 *fontsize-changelog-0.5.1*
+
+  - Add support for Haiku.
+
 Version 0.5.0    Date    2023-08-19                 *fontsize-changelog-0.5.0*
 
   - Add support for Neovim GUIs (at least nvim-qt and neovide).
@@ -252,6 +256,7 @@ Contributors in chronological order:
 - hfs
 - Ingo Karkat
 - Anatolii Sakhnik
+- cos
 
 ===============================================================================
 vim:sts=2:et:ai:tw=78:fo=tcq2:ft=help:

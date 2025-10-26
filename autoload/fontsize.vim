@@ -27,6 +27,9 @@ let fontsize#regex_kde = '\(.\{-}\/\)\(\d\+\)\(.*\)'
 " TODO For now, just taking the first string of digits.
 let fontsize#regex_x11 = '\(.\{-}-\)\(\d\+\)\(.*\)'
 
+" gui_haiku: Terminus (TTF)/Medium/20
+let fontsize#regex_haiku = '\(.*/.*/\)\([0-9.]\+\)\(\)$'
+
 " gui_other: Courier_New:h11:cDEFAULT
 let fontsize#regex_other = '\(.\{-}:h\)\(\d\+\)\(.*\)'
 
@@ -38,6 +41,8 @@ elseif has("gui_kde")
     let s:regex = fontsize#regex_kde
 elseif has("x11")
     let s:regex = fontsize#regex_x11
+elseif has("haiku")
+    let s:regex = fontsize#regex_haiku
 else
     let s:regex = fontsize#regex_other
 endif

@@ -34,7 +34,7 @@ endif
 " were mapped.  When time-outs are enabled (see g:fontsize_timeout), the
 " new "mode" times out and the new "mappings" are effectively turned off.
 "
-" This emulation of a "mode" is accomplished via a clever techinque
+" This emulation of a "mode" is accomplished via a clever technique
 " wherein each operation terminates with a partial mapping to <SID>(fontsize).
 " Each new keystroke completes a mapping that itself terminates with
 " <SID>(fontsize), keeping an extensible chain of mappings going as long as

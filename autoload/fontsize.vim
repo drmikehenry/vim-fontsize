@@ -149,15 +149,6 @@ function! fontsize#display()
     echo fontsize#fontString(fontsize#getFontName()) . " (+/= - 0 ! q CR SP)"
 endfunction
 
-function! fontsize#ensureDefault()
-    if !exists("g:fontsize#defaultSize")
-        let g:fontsize#defaultSize = 0
-    endif
-    if g:fontsize#defaultSize == 0
-        let g:fontsize#defaultSize = fontsize#getSize(fontsize#getFontName())
-    endif
-endfunction
-
 " True when options have already been setup.
 let g:fontsize#optionsActive = 0
 
@@ -230,7 +221,6 @@ endfunction
 
 function! fontsize#default()
     call fontsize#setupOptions()
-    call fontsize#ensureDefault()
     call fontsize#setFontName(
             \ fontsize#setSize(fontsize#getFontName(), g:fontsize#defaultSize))
     call fontsize#setFontNameWide(
@@ -245,7 +235,6 @@ endfunction
 
 function! fontsize#inc()
     call fontsize#setupOptions()
-    call fontsize#ensureDefault()
     let newSize = fontsize#getSize(fontsize#getFontName()) + v:count1
     call fontsize#setFontName(fontsize#setSize(fontsize#getFontName(), newSize))
     call fontsize#setFontNameWide(
@@ -255,7 +244,6 @@ endfunction
 
 function! fontsize#dec()
     call fontsize#setupOptions()
-    call fontsize#ensureDefault()
     let newSize = fontsize#getSize(fontsize#getFontName()) - v:count1
     if newSize > 0
         call fontsize#setFontName(
@@ -265,5 +253,13 @@ function! fontsize#dec()
     endif
     call fontsize#display()
 endfunction
+
+" Setup default variables.
+if !exists("g:fontsize#defaultSize")
+    let g:fontsize#defaultSize = 0
+endif
+if g:fontsize#defaultSize == 0
+    let g:fontsize#defaultSize = fontsize#getSize(fontsize#getFontName())
+endif
 
 " vim: sts=4 sw=4 tw=80 et ai:

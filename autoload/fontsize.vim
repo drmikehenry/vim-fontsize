@@ -16,24 +16,26 @@ let s:hasFloat = has('float')
 " - size (possibly fractional)
 " - suffix (possibly including extra fonts after commas)
 
+let s:size_suffix_vregex = '(\d+%(\.\d*)?|\.\d+)' . '(.*)'
+
 " gui_gtk2: `Courier New 11`
-let fontsize#regex_gtk2 = '\v^(.{-} )(\d+)(.*)'
+let fontsize#regex_gtk2 = '\v^(.{-} )' . s:size_suffix_vregex
 
 " gui_photon: `Courier New:s11`
-let fontsize#regex_photon = '\v^(.{-}:s)(\d+)(.*)'
+let fontsize#regex_photon = '\v^(.{-}:s)' . s:size_suffix_vregex
 
 " gui_kde: `Courier New/11/-1/5/50/0/0/0/1/0`
-let fontsize#regex_kde = '\v^(.{-}/)(\d+)(.*)'
+let fontsize#regex_kde = '\v^(.{-}/)' . s:size_suffix_vregex
 
 " gui_x11: `-*-courier-medium-r-normal-*-*-180-*-*-m-*-*`
 " TODO For now, just taking the first string of digits.
-let fontsize#regex_x11 = '\v^(.{-}-)(\d+)(.*)'
+let fontsize#regex_x11 = '\v^(.{-}-)' . s:size_suffix_vregex
 
 " gui_haiku: `Terminus (TTF)/Medium/20`
-let fontsize#regex_haiku = '\v^(.*/.*/)(\d+)(.*)'
+let fontsize#regex_haiku = '\v^([^/]*/[^/]*/)' . s:size_suffix_vregex
 
 " gui_other: `Courier_New:h11:cDEFAULT`
-let fontsize#regex_other = '\v^(.{-}:h)(\d+)(.*)'
+let fontsize#regex_other = '\v^(.{-}:h)' . s:size_suffix_vregex
 
 if has("gui_gtk2") || has("gui_gtk3")
     let s:regex = fontsize#regex_gtk2
@@ -182,17 +184,19 @@ function! fontsize#addSize(size, delta)
     return size
 endfunction
 
+" Return normalized size (see `fontsize#normalizeSize()`.
 function! fontsize#getSize(font)
     let decodedFont = fontsize#decodeFont(a:font)
     if match(decodedFont, s:regex) != -1
-        " Add zero to convert to integer.
-        let size = 0 + substitute(decodedFont, s:regex, '\2', '')
+        let size_str = substitute(decodedFont, s:regex, '\2', '')
+        let size = fontsize#normalizeSize(size_str)
     else
         let size = 0
     endif
     return size
 endfunction
 
+" `size` may be integer, float, or string.
 function! fontsize#setSize(font, size)
     let decodedFont = fontsize#decodeFont(a:font)
     if match(decodedFont, s:regex) != -1
@@ -313,25 +317,22 @@ function! fontsize#setDefault()
     let g:fontsize#defaultSize = fontsize#getSize(fontsize#getFontName())
 endfunction
 
-function! fontsize#inc()
+function! fontsize#add(delta)
     call fontsize#setupOptions()
-    let newSize = fontsize#getSize(fontsize#getFontName()) + v:count1
+    let oldSize = fontsize#getSize(fontsize#getFontName())
+    let newSize = fontsize#addSize(oldSize, a:delta)
     call fontsize#setFontName(fontsize#setSize(fontsize#getFontName(), newSize))
     call fontsize#setFontNameWide(
             \ fontsize#setSize(&guifontwide, newSize))
     call fontsize#display()
 endfunction
 
+function! fontsize#inc()
+    call fontsize#add(v:count1)
+endfunction
+
 function! fontsize#dec()
-    call fontsize#setupOptions()
-    let newSize = fontsize#getSize(fontsize#getFontName()) - v:count1
-    if newSize > 0
-        call fontsize#setFontName(
-                \ fontsize#setSize(fontsize#getFontName(), newSize))
-            call fontsize#setFontNameWide(
-                    \ fontsize#setSize(&guifontwide, newSize))
-    endif
-    call fontsize#display()
+    call fontsize#add(-v:count1)
 endfunction
 
 function! fontsize#testRegexes()
@@ -346,6 +347,20 @@ function! fontsize#testRegexes()
     call assert_equal(m[1], 'Courier New ')
     call assert_equal(m[2], '11')
     call assert_equal(m[3], '')
+    let m = matchlist('Courier New 11.25', g:fontsize#regex_gtk2)
+    call assert_equal(m[1], 'Courier New ')
+    call assert_equal(m[2], '11.25')
+    call assert_equal(m[3], '')
+    let m = matchlist('Courier New 11.', g:fontsize#regex_gtk2)
+    call assert_equal(m[1], 'Courier New ')
+    call assert_equal(m[2], '11.')
+    call assert_equal(m[3], '')
+    let m = matchlist('Courier New .9', g:fontsize#regex_gtk2)
+    call assert_equal(m[1], 'Courier New ')
+    call assert_equal(m[2], '.9')
+    call assert_equal(m[3], '')
+    let m = matchlist('Courier New .', g:fontsize#regex_gtk2)
+    call assert_equal(m, [])
 
     " gui_photon:
     let m = matchlist('Courier New:11', g:fontsize#regex_photon)
@@ -354,6 +369,10 @@ function! fontsize#testRegexes()
     call assert_equal(m[1], 'Courier New:s')
     call assert_equal(m[2], '11')
     call assert_equal(m[3], '')
+    let m = matchlist('Courier New:s11.25', g:fontsize#regex_photon)
+    call assert_equal(m[1], 'Courier New:s')
+    call assert_equal(m[2], '11.25')
+    call assert_equal(m[3], '')
 
     " gui_kde:
     let m = matchlist('Courier New 11', g:fontsize#regex_kde)
@@ -361,6 +380,10 @@ function! fontsize#testRegexes()
     let m = matchlist('Courier New/11/-1/5/50/0/0/0/1/0', g:fontsize#regex_kde)
     call assert_equal(m[1], 'Courier New/')
     call assert_equal(m[2], '11')
+    call assert_equal(m[3], '/-1/5/50/0/0/0/1/0')
+    let m = matchlist('Courier New/11.25/-1/5/50/0/0/0/1/0', g:fontsize#regex_kde)
+    call assert_equal(m[1], 'Courier New/')
+    call assert_equal(m[2], '11.25')
     call assert_equal(m[3], '/-1/5/50/0/0/0/1/0')
 
     " gui_x11:
@@ -372,6 +395,11 @@ function! fontsize#testRegexes()
     call assert_equal(m[1], '-*-courier-medium-r-normal-*-*-')
     call assert_equal(m[2], '180')
     call assert_equal(m[3], '-*-*-m-*-*')
+    let m = matchlist('-*-courier-medium-r-normal-*-*-180.25-*-*-m-*-*',
+            \ g:fontsize#regex_x11)
+    call assert_equal(m[1], '-*-courier-medium-r-normal-*-*-')
+    call assert_equal(m[2], '180.25')
+    call assert_equal(m[3], '-*-*-m-*-*')
 
     " gui_haiku:
     let m = matchlist('Terminus (TTF) Medium/20', g:fontsize#regex_haiku)
@@ -380,6 +408,10 @@ function! fontsize#testRegexes()
     call assert_equal(m[1], 'Terminus (TTF)/Medium/')
     call assert_equal(m[2], '20')
     call assert_equal(m[3], '')
+    let m = matchlist('Terminus (TTF)/Medium/20.25', g:fontsize#regex_haiku)
+    call assert_equal(m[1], 'Terminus (TTF)/Medium/')
+    call assert_equal(m[2], '20.25')
+    call assert_equal(m[3], '')
 
     " gui_other:
     let m = matchlist('Courier_New:11:cDEFAULT', g:fontsize#regex_other)
@@ -387,6 +419,10 @@ function! fontsize#testRegexes()
     let m = matchlist('Courier_New:h11:cDEFAULT', g:fontsize#regex_other)
     call assert_equal(m[1], 'Courier_New:h')
     call assert_equal(m[2], '11')
+    call assert_equal(m[3], ':cDEFAULT')
+    let m = matchlist('Courier_New:h11.25:cDEFAULT', g:fontsize#regex_other)
+    call assert_equal(m[1], 'Courier_New:h')
+    call assert_equal(m[2], '11.25')
     call assert_equal(m[3], ':cDEFAULT')
 
     for e in v:errors

@@ -79,6 +79,18 @@ functionality.
 While "font size" mode is active, the prompt "(fontsize)" will be shown if
 'showcmd' is set.
 
+The `:Fontsize` command can be used to display the current font size or to change
+the font size: >
+
+  Fontsize                    " Display current font size.
+  Fontsize 12                 " Set font size to 12.
+<
+Using `+` or `-`, the font size may be increased or decreased by the given
+amount, e.g.: >
+
+  Fontsize +0.5               " Increment font size by 0.5.
+  Fontsize -2                 " Decrement font size by 2.
+<
 Details on customization are found in the |fontsize-customization| section
 of the included documentation.
 
@@ -175,6 +187,10 @@ points: >
 
   let g:fontsize#stepSize = 0.5
 <
+To avoid defining the `:Fontsize` command: >
+
+  let g:fontsize#defineFontsizeCommand = 0
+<
 ===============================================================================
 5.  ChangeLog                                       *fontsize-changelog*
 
@@ -187,6 +203,8 @@ Version 0.6.0    Date    2025-11-26                 *fontsize-changelog-0.6.0*
 
       let g:fontsize#stepSize = 0.5
 <
+  - Add `:Fontsize` command to display current font size or change the font size.
+
 Version 0.5.0    Date    2023-08-19                 *fontsize-changelog-0.5.0*
 
   - Add support for Neovim GUIs (at least nvim-qt and neovide).

@@ -16,24 +16,24 @@ let s:hasFloat = has('float')
 " - size (possibly fractional)
 " - suffix (possibly including extra fonts after commas)
 
-" gui_gtk2: Courier\ New\ 11
-let fontsize#regex_gtk2 = '\(.\{-} \)\(\d\+\)\(.*\)'
+" gui_gtk2: `Courier New 11`
+let fontsize#regex_gtk2 = '\v^(.{-} )(\d+)(.*)'
 
-" gui_photon: Courier\ New:s11
-let fontsize#regex_photon = '\(.\{-}:s\)\(\d\+\)\(.*\)'
+" gui_photon: `Courier New:s11`
+let fontsize#regex_photon = '\v^(.{-}:s)(\d+)(.*)'
 
-" gui_kde: Courier\ New/11/-1/5/50/0/0/0/1/0
-let fontsize#regex_kde = '\(.\{-}\/\)\(\d\+\)\(.*\)'
+" gui_kde: `Courier New/11/-1/5/50/0/0/0/1/0`
+let fontsize#regex_kde = '\v^(.{-}/)(\d+)(.*)'
 
-" gui_x11: -*-courier-medium-r-normal-*-*-180-*-*-m-*-*
+" gui_x11: `-*-courier-medium-r-normal-*-*-180-*-*-m-*-*`
 " TODO For now, just taking the first string of digits.
-let fontsize#regex_x11 = '\(.\{-}-\)\(\d\+\)\(.*\)'
+let fontsize#regex_x11 = '\v^(.{-}-)(\d+)(.*)'
 
-" gui_haiku: Terminus (TTF)/Medium/20
-let fontsize#regex_haiku = '\(.*/.*/\)\([0-9.]\+\)\(\)$'
+" gui_haiku: `Terminus (TTF)/Medium/20`
+let fontsize#regex_haiku = '\v^(.*/.*/)(\d+)(.*)'
 
-" gui_other: Courier_New:h11:cDEFAULT
-let fontsize#regex_other = '\(.\{-}:h\)\(\d\+\)\(.*\)'
+" gui_other: `Courier_New:h11:cDEFAULT`
+let fontsize#regex_other = '\v^(.{-}:h)(\d+)(.*)'
 
 if has("gui_gtk2") || has("gui_gtk3")
     let s:regex = fontsize#regex_gtk2
@@ -332,6 +332,71 @@ function! fontsize#dec()
                     \ fontsize#setSize(&guifontwide, newSize))
     endif
     call fontsize#display()
+endfunction
+
+function! fontsize#testRegexes()
+    let v:errors = []
+
+    " gui_gtk2:
+    let m = matchlist('Courier New ', g:fontsize#regex_gtk2)
+    call assert_equal(m, [])
+    let m = matchlist('Courier New11', g:fontsize#regex_gtk2)
+    call assert_equal(m, [])
+    let m = matchlist('Courier New 11', g:fontsize#regex_gtk2)
+    call assert_equal(m[1], 'Courier New ')
+    call assert_equal(m[2], '11')
+    call assert_equal(m[3], '')
+
+    " gui_photon:
+    let m = matchlist('Courier New:11', g:fontsize#regex_photon)
+    call assert_equal(m, [])
+    let m = matchlist('Courier New:s11', g:fontsize#regex_photon)
+    call assert_equal(m[1], 'Courier New:s')
+    call assert_equal(m[2], '11')
+    call assert_equal(m[3], '')
+
+    " gui_kde:
+    let m = matchlist('Courier New 11', g:fontsize#regex_kde)
+    call assert_equal(m, [])
+    let m = matchlist('Courier New/11/-1/5/50/0/0/0/1/0', g:fontsize#regex_kde)
+    call assert_equal(m[1], 'Courier New/')
+    call assert_equal(m[2], '11')
+    call assert_equal(m[3], '/-1/5/50/0/0/0/1/0')
+
+    " gui_x11:
+    let m = matchlist('/*/courier/medium/r/normal/*/*/180/*/*/m/*/*',
+            \ g:fontsize#regex_x11)
+    call assert_equal(m, [])
+    let m = matchlist('-*-courier-medium-r-normal-*-*-180-*-*-m-*-*',
+            \ g:fontsize#regex_x11)
+    call assert_equal(m[1], '-*-courier-medium-r-normal-*-*-')
+    call assert_equal(m[2], '180')
+    call assert_equal(m[3], '-*-*-m-*-*')
+
+    " gui_haiku:
+    let m = matchlist('Terminus (TTF) Medium/20', g:fontsize#regex_haiku)
+    call assert_equal(m, [])
+    let m = matchlist('Terminus (TTF)/Medium/20', g:fontsize#regex_haiku)
+    call assert_equal(m[1], 'Terminus (TTF)/Medium/')
+    call assert_equal(m[2], '20')
+    call assert_equal(m[3], '')
+
+    " gui_other:
+    let m = matchlist('Courier_New:11:cDEFAULT', g:fontsize#regex_other)
+    call assert_equal(m, [])
+    let m = matchlist('Courier_New:h11:cDEFAULT', g:fontsize#regex_other)
+    call assert_equal(m[1], 'Courier_New:h')
+    call assert_equal(m[2], '11')
+    call assert_equal(m[3], ':cDEFAULT')
+
+    for e in v:errors
+        echoerr e
+    endfor
+endfunction
+
+function! fontsize#test()
+    call fontsize#testNorm()
+    call fontsize#testRegexes()
 endfunction
 
 " Setup default variables.

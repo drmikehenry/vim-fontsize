@@ -328,11 +328,11 @@ function! fontsize#add(delta)
 endfunction
 
 function! fontsize#inc()
-    call fontsize#add(v:count1)
+    call fontsize#add(v:count1 * g:fontsize#stepSize)
 endfunction
 
 function! fontsize#dec()
-    call fontsize#add(-v:count1)
+    call fontsize#add(-v:count1 * g:fontsize#stepSize)
 endfunction
 
 function! fontsize#testRegexes()
@@ -441,6 +441,10 @@ if !exists("g:fontsize#defaultSize")
 endif
 if g:fontsize#defaultSize == 0
     let g:fontsize#defaultSize = fontsize#getSize(fontsize#getFontName())
+endif
+
+if !exists("g:fontsize#stepSize")
+    let g:fontsize#stepSize = 1
 endif
 
 " vim: sts=4 sw=4 tw=80 et ai:

@@ -1,5 +1,5 @@
 *fontsize.txt*   Plugin for modifying guifont size
-*fontsize*       Version 0.5.1
+*fontsize*       Version 0.6.0
 
 ==============================================================================
 1.  Introduction                                    |fontsize-intro|
@@ -163,13 +163,30 @@ the font names.  For example, on Chinese Windows XP, the fonts are encoded in
 
 (Converting font name encodings requires the +iconv feature.)
 
+By default, the font size increments and decrements by a step size of one.
+The step size is controlled by the following user-configurable variable: >
+
+  let g:fontsize#stepSize = 1
+<
+This may be set to any positive integer as desired.  If your Vim has floating
+point support enabled and fractional font sizes are supported on your platform,
+you can choose a fractional step size as well; for example, to increment by 0.5
+points: >
+
+  let g:fontsize#stepSize = 0.5
+<
 ===============================================================================
 5.  ChangeLog                                       *fontsize-changelog*
 
-Version 0.5.1    Date    2025-10-26                 *fontsize-changelog-0.5.1*
+Version 0.6.0    Date    2025-11-26                 *fontsize-changelog-0.6.0*
 
   - Add support for Haiku.
 
+  - Make font step size configurable via `g:fontsize#stepSize`, which may be
+    a fractional value.  For example, to step by 0.5 points: >
+
+      let g:fontsize#stepSize = 0.5
+<
 Version 0.5.0    Date    2023-08-19                 *fontsize-changelog-0.5.0*
 
   - Add support for Neovim GUIs (at least nvim-qt and neovide).

@@ -5,6 +5,8 @@ if exists("autoloaded_fontsize")
 endif
 let autoloaded_fontsize = 1
 
+let s:hasFloat = has('float')
+
 " Font examples from http://vim.wikia.com/wiki/VimTip632
 
 " Regex values for each platform split guifont into three
@@ -100,6 +102,84 @@ function! fontsize#decodeFont(font)
         let decodedFont = a:font
     endif
     return decodedFont
+endfunction
+
+" Return integer when font size is an integer.  For fractional font size, return
+" float if floating point is supported, and string otherwise.
+function! fontsize#normalizeSize(size)
+    " Treat as a string by concatenating ''.
+    " Remove any suffix consisting solely of a decimal point and some number of
+    " zeros.
+    let size_str = substitute(a:size . '', '\.0*$', '', '')
+    if size_str !~ '\.'
+        " No fractional portion; return integer.
+        return str2nr(size_str)
+    endif
+    if s:hasFloat
+        return str2float(size_str)
+    endif
+    " Must keep as a string.
+    return size_str
+endfunction
+
+function! fontsize#testNorm()
+    let v:errors = []
+
+    let size = fontsize#normalizeSize(2)
+    call assert_equal(type(size), type(2))
+    call assert_equal(size, 2)
+    let size = fontsize#normalizeSize('2.')
+    call assert_equal(type(size), type(2))
+    call assert_equal(size, 2)
+    let size = fontsize#normalizeSize('2.0')
+    call assert_equal(type(size), type(2))
+    call assert_equal(size, 2)
+
+    if has('float')
+        let size = fontsize#normalizeSize(2.0)
+        call assert_equal(type(size), type(2))
+        call assert_equal(size, 2)
+        let size = fontsize#normalizeSize(2.5)
+        call assert_equal(type(size), type(2.5))
+        call assert_equal(size, 2.5)
+        let size = fontsize#normalizeSize('.2')
+        call assert_equal(type(size), type(0.2))
+        call assert_equal(size, 0.2)
+    endif
+
+    let s:hasFloat = 0
+    let size = fontsize#normalizeSize('2.5')
+    call assert_equal(type(size), type('2.5'))
+    call assert_equal(size, '2.5')
+    let s:hasFloat = has('float')
+
+    for e in v:errors
+        echoerr e
+    endfor
+endfunction
+
+" `size` will be normalized; `delta` must be numeric but may be negative.
+" If sum would be negative, return normalized `size`.
+function! fontsize#addSize(size, delta)
+    let normSize = fontsize#normalizeSize(a:size)
+    if type(normSize) == type('')
+        " Must not have floating point, so `a:delta` must be integer.
+        " Trim leading digits to acquire any fractional suffix.
+        let suffix = substitute(normSize, '^\d\+', '', '')
+        let size = str2nr(normSize)
+    else
+        let suffix = ''
+        let size = normSize
+    endif
+    " `size` is numeric.
+    if size + a:delta > 0
+        let size += a:delta
+    endif
+    if suffix != ''
+        " Must not have floating point, so `size` is integer here.
+        return size . suffix
+    endif
+    return size
 endfunction
 
 function! fontsize#getSize(font)
